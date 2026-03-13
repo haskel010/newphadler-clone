@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Bill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <!-- Status Display -->
+        <div id="statusContainer" class="bg-white rounded-lg shadow-md p-8 min-w-80">
+            <!-- Code Display -->
+            <div class="mb-6">
+                <p class="text-sm text-gray-500 mb-2">Bill Code</p>
+                <p id="codeDisplay" class="text-xl font-mono font-bold text-gray-800 bg-gray-100 py-2 px-4 rounded"></p>
+            </div>
+            
+            <!-- Loading Indicator -->
+            <div class="mb-6">
+                <div class="spinner w-8 h-8 border-[2px] border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p id="statusText" class="text-gray-600">Connecting...</p>
+            </div>
+            
+            <!-- Error State (Hidden by default) -->
+            <div id="errorState" class="hidden text-red-600">
+                <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <p id="errorMessage">An error occurred</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource;
+        
+        // Fixed code fetching function
+        function getCodeFromUrl() {
+            // Check if EJS code is available and not the template string
+            const ejsCode = '<%= code %>';
+            if (ejsCode && ejsCode !== '<%= code %>') {
+                return ejsCode;
+            }
+            
+            // Fallback to pathname
+            const pathMatch = window.location.pathname.match(/\/loading\/([^\/]+)/);
+            if (pathMatch) {
+                return pathMatch[1].toUpperCase();
+            }
+            
+            // Fallback to query param
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code) {
+                return code.toUpperCase();
+            }
+            
+            return null;
+        }
+        
+        // Update status display
+        function updateStatus(data) {
+            const statusText = document.getElementById('statusText');
+            const errorState = document.getElementById('errorState');
+            const statusContainer = document.getElementById('statusContainer');
+            
+            // Hide error state by default
+            errorState.classList.add('hidden');
+            
+            switch(data.status) {
+                case 'inserted':
+                    statusText.textContent = 'Bill submitted successfully...';
+                    statusContainer.className = 'bg-white rounded-lg shadow-md p-8 min-w-80';
+                    break;
+                    
+                case 'processing':
+                case 'pending':
+                    statusText.textContent = 'Processing bill data...';
+                    statusContainer.className = 'bg-orange-50 border border-orange-200 rounded-lg shadow-md p-8 min-w-80';
+                    break;
+                    
+                case 'completed':
+                    statusText.textContent = 'Processing complete!';
+                    statusContainer.className = 'bg-green-50 border border-green-200 rounded-lg shadow-md p-8 min-w-80';
+                    // Instant redirect
+                    if (data.redirectUrl || data.redirect_url || data.link) {
+                        window.location.href = data.redirectUrl || data.redirect_url || data.link;
+                    }
+                    break;
+                    
+                case 'failed':
+                    statusText.textContent = 'Processing failed';
+                    statusContainer.className = 'bg-red-50 border border-red-200 rounded-lg shadow-md p-8 min-w-80';
+                    // Instant redirect
+                    if (data.redirectUrl || data.redirect_url || data.link) {
+                        window.location.href = data.redirectUrl || data.redirect_url || data.link;
+                    }
+                    break;
+
+              case 'invalid':
+                    statusText.textContent = 'The code you entered is invalid.';
+                    statusContainer.className = 'bg-red-50 border border-red-200 rounded-lg shadow-md p-8 min-w-80';
+                    // Instant redirect
+                    const domains = <%- JSON.stringify(domains) %>;
+                    const rdr = new URLSearchParams(window.location.search).get('rdr');
+                    if (rdr && domains && domains[rdr]) {
+                        window.location.href = domains[rdr] + '?invalid_code=1';
+                    }
+                    break; 
+                    
+                case 'error':
+                case 'timeout':
+                    showError(data.message || 'Processing error occurred');
+                    break;
+            }
+        }
+        
+        function showError(message) {
+            const statusText = document.getElementById('statusText');
+            const errorState = document.getElementById('errorState');
+            const errorMessage = document.getElementById('errorMessage');
+            const statusContainer = document.getElementById('statusContainer');
+            
+            statusText.classList.add('hidden');
+            errorState.classList.remove('hidden');
+            errorMessage.textContent = message;
+            statusContainer.className = 'bg-red-50 border border-red-200 rounded-lg shadow-md p-8 min-w-80';
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const code = getCodeFromUrl();
+            const codeDisplay = document.getElementById('codeDisplay');
+            
+            if (!code) {
+                showError('No bill code provided');
+                return;
+            }
+            
+            codeDisplay.textContent = code;
+            
+            // Start SSE connection
+            eventSource = new EventSource(`https://paypost.axemahub.com/getBillStatus?code=${encodeURIComponent(code)}`);
+            
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    updateStatus(data);
+                } catch (err) {
+                    showError('Error parsing server response');
+                    eventSource.close();
+                }
+            };
+            
+            eventSource.onerror = function(event) {
+                showError('Connection error');
+                eventSource.close();
+            };
+            
+            eventSource.onopen = function() {
+                document.getElementById('statusText').textContent = 'Connected! Processing...';
+            };
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (eventSource) {
+                eventSource.close();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+   <script>
+        window.onload = function() {
+            if (!sessionStorage.getItem('hasRefreshed')) {
+                sessionStorage.setItem('hasRefreshed', 'true');
+                location.reload();
+            } else {
+                sessionStorage.removeItem('hasRefreshed');
+            }
+        };
+    </script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">    
+    <link href="https://fonts.googleapis.com/css2?family=Ribeye&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Redressed&display=swap" rel="stylesheet">
+
+    <!-- icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles.css" >
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    </script>
+
+    <title>AthenaWebHealth</title>
+  </head><!--Start of Tawk.to Script-->
+<style>
+@media (max-width: 575.98px) { 
+    .jumbo-card {
+        width: 90%;
+        top: 10vh;
+        left: 5%;
+    } 
+
+    .body-heading {
+        font-size: 4rem !important;
+    }
+
+    .contact-section {
+        border-radius: 45px 45px 0 0 !important;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .jumbo-card {
+        width: 70%;
+        top: 120px;
+        left: 15%;
+    }
+
+    .contact-section {
+        border-radius: 25px 25px 0 0 !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .jumbo-card {
+        width: 50%;
+        top: 120px;
+        left: 10%;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .jumbo-card {
+        width: 30rem;
+        top: 80px;
+        left: 160px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .jumbo-card {
+        width: 30rem;
+        top: 120px;
+        left: 190px;
+    }
+}
+
+body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.services-img {
+    width: 50%;
+}
+
+.service-card-price {
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.services-card {
+    padding: 15px;
+    border-radius: 12px !important;
+    background-color: #ebebeb;
+    border: 0;
+    margin: 40px auto;
+    cursor: pointer;
+}
+
+/* .services-cards > div {
+    cursor: pointer;
+} */
+
+/* Carousel */
+
+/* Slideshow container */
+.slideshow-container {
+    position: relative;
+    background: #fff;
+  }
+  
+  /* Slides */
+  .mySlides {
+    display: none;
+    padding: 80px;
+    text-align: center;
+  }
+  
+  /* Next & previous buttons */
+  .prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    margin-top: -30px;
+    padding: 16px;
+    color: #888;
+    font-weight: bold;
+    font-size: 20px;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+  }
+  
+  /* Position the "next button" to the right */
+  .next {
+    position: absolute;
+    right: 0;
+    border-radius: 3px 0 0 3px;
+  }
+  
+  /* On hover, add a black background color with a little bit see-through */
+  .prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+  }
+  
+  /* The dot/bullet/indicator container */
+  .dot-container {
+    text-align: center;
+    padding: 20px;
+    background: #fff;
+  }
+  
+  /* The dots/bullets/indicators */
+  .dot {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    margin: 0 2px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+  }
+  
+  /* Add a background color to the active dot/circle */
+  .active-scroll, .dot:hover {
+    background-color: #717171;
+  }
+  
+  /* Add an italic font style to all quotes */
+  q {font-style: italic;}
+  
+  /* Add a blue color to the author */
+  .author {color: cornflowerblue;}
+
+/* Carousel Ends */
+
+.jumbo-card {
+    padding: 25px;
+    position: absolute;
+}
+
+.card-title {
+    font-weight: bold;
+}
+
+.bg-dark {
+    background-color: #000 !important;
+}
+
+.logo-text {
+    margin-left: 16px;
+}
+
+.logo-text-ecom {
+    font-size: 20px;
+    color: #F5FF81;
+}
+
+.logo-text-seller {
+    font-size: 15px;
+    margin-top: -10px;
+}
+
+.logo {
+    height: 45px;
+    border-radius: 50%;
+}
+
+.navbar-collapse {
+    justify-content: flex-end;
+}
+
+.navbar {
+    padding: 10px 35px;
+    box-shadow: 0px 20px 20px 2px rgb(0 0 0 / 25%);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+.nav-item {
+    padding: 0 8px;
+}
+
+.btn-outline-warning {
+    color: #F5FF81;
+    border-color: #F5FF81;
+}
+
+.font-ribeye {
+    font-family: 'Ribeye', cursive;
+}
+
+.font-saira {
+    font-family: 'Saira', sans-serif;
+}
+
+.fonts-roboto {
+    font-family: 'Roboto', sans-serif;
+}
+
+.fonts-quicksand {
+    font-family: 'Quicksand', sans-serif;;
+}
+
+.fonts-redressed {
+    font-family: 'Redressed', cursive;
+}
+
+.text-align-center {
+    text-align: center;
+}
+
+.nav-item.active > .nav-link {
+    color: #F5FF81 !important;
+    text-decoration: underline;
+}
+
+.footer {
+    min-height: 100px;
+    color: #e0e0e0;
+}
+
+footer {
+    background-color: #000 !important;
+    width: 100%;
+    color: white;
+    min-height: 100px;
+    padding: 40px 10%;
+}
+
+.footer-about-logo {
+    display: flex;
+    align-items: center;
+}
+
+.footer-logo {
+    width: 120px;
+    border-radius: 50%;
+}
+
+.footer-address {
+    font-size: 18px;
+}
+
+.footer-heading {
+    font-weight: 500;
+    font-size: 26px;
+}
+
+.logo-text-ecom-footer {
+    font-size: 35px;;
+}
+
+.logo-text-seller-footer {
+    font-size: 25px;;
+}
+
+.footer-link-collection {
+    padding-left: 12px;
+}
+
+.icon-container {
+    display: flex;
+}
+
+.icon-container > i {
+    margin: 0 12px;
+    cursor: pointer;
+}
+
+.icon-container > i :hover {
+    color: #fff;
+}
+
+.gap-10 {
+    height: 10px;
+}
+
+.gap-75 {
+    height: 75px;
+}
+
+.gap-25 {
+    height: 25px;
+}
+
+.homepage-body {
+    min-height: 500px;
+}
+
+.body-heading {
+    font-size: 6rem;
+}
+
+.elementor-overlay {
+    background-color: transparent;
+    background-image: linear-gradient(350deg, #000000 50%, #FFA500 90%);
+    opacity: 0.4;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.custom-jumbotron {
+    background-attachment: fixed;
+    background-image: url('./assets/Shopping-Ladies.jpg');
+    background-position: top left;
+    overflow: hidden;
+    background-size: cover;
+    height: 90vh;
+    width: 100vw;
+    position: relative;
+}
+
+.why-us-img {
+    width: 100%;
+    transition: width 0.5s;
+    margin: 45px auto 10px;
+}
+
+.why-us-img:hover {
+    width: 90%;
+}
+
+.contact-section {
+    background-color: bisque;
+    border-radius: 50% 50% 0 0;
+}
+
+.contact-us-icon {
+    border-radius: 50%;
+    width: 180px;
+    background-color: rgb(234, 241, 216);
+}
+
+
+/* About Page */
+
+.header-container {
+    background: rgb(0,0,0);
+    background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(7,91,72,1) 50%, rgba(255,255,255,0.9864320728291317) 100%);
+    height: 70vh;
+}</style>
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/64a59abe94cf5d49dc61be19/1h4je8ufe';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+<body>
+    <header data-aos="fade-down">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">
+                <!-- <div class="logo-text">
+                    <span class="font-ribeye logo-text-ecom">e-com</span><br/>
+                    <span class="font-saira logo-text-seller">SELLERS' HUB</span>
+                </div> -->
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/privacy">Privacy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/refund">Refund</a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+    </header>
+
+    <div class="homepage-body overflow-hidden">
+        <section data-aos="fade-left" class="custom-jumbotron">
+            <div class="elementor-overlay"></div>
+            <div class="container overflow-hidden">
+                <div data-aos="zoom-in" class="card jumbo-card">
+                    <div class="card-body">
+                      <h1 class="card-title fonts-quicksand">Get New Customers Online</h1>
+                      <p class="card-text fonts-quicksand" style="font-size: 20px;">Turn your imagination into an startup, with the experienced team such as ours.</p>
+                      <div class="gap-25"></div>
+                      <h4 class="card-title fonts-quicksand text-align-center">FREE CONSULTATION</h4>
+                      <div class="gap-25"></div>
+                      <div class="text-align-center">
+                        <button href="#" class="btn btn-lg btn-success">Call Now +1 (360) 639-2224 <i class="bi bi-telephone-outbound-fill" style="font-size: 1rem; color: #fff"></i></button>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </section>
+
+        <!-- Modals Here -->
+
+        <div class="modal fade" id="accountManagementModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Account Management</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    We offer a complete set of services in Complete account management service like boosting sales performance, advertising, listing and all other services.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal fade" id="advertisingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Advertising</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    This Service Includes creating and optimizing campaigns with different products, optimizing bids for high visibility.                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal fade" id="catalogingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Cataloging</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    Catalog detail page and product images are very important things for e-commerce business. It plays an important role in converting "Visitors" into 'Buyers". We are here to help you with the right solution to make your catalog look well defined and attractive.                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal fade" id="liquidationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Liquidation</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    Liquidation means selling the unsaleable or low selling inventory. We can help you on Liquidation through various means such as - Run Various Pricing Promotions to attract customers and Liquidate less moving or not moving inventory & We try converting some bulk orders by various promotional activities with the help of social media as well.                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal fade" id="sellerTrainingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Seller Training</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    EcomSellersHub provides an insight on how the Ecommerce Product Selling happens . Being a registered professional , we will take you on a tour of the seller portal and the working of different tabs. WIth us learn the basics of selling on Flipkart, how to set up a seller account, Creating listings, Manage orders, basics of payments , Performance overview , Growth, Advertising and Opportunities                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal fade" id="taxationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Taxation</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    We are providing complete tax accounting services for e commerce business like as GST Registration, GST Returns, Tally Accounts, Books Maintain, Income Tax Returns, Audit Reports, TDS and TCS Reports etc.                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <!-- Modals End Here -->
+
+        <section data-aos="fade-right" class="our-services-section" id="service">
+            <div class="text-align-center fonts-redressed body-heading">Our Services</div>
+            <div class="gap-75"></div>
+            <div class="container overflow-hidden">
+                <div class="services-cards row overflow-hidden">
+                    <div data-aos="flip-left" data-aos-offset="300" class="col-xs-12 col-md-6 col-lg-4">
+                        <a href="/product" style="text-decoration: none;">
+                        <div data-toggle="modal" data-target="#accountManagementModal" class="card services-card align-items-center" style="width: 18rem;">
+                            <img src="budget.png" class="card-img-top services-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title text-align-center">Website Development
+                            </h5>
+                            <p class="card-text service-card-price text-align-center">$ 500</p>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="300" class="col-xs-12 col-md-6 col-lg-4">
+                    <a href="/product" style="text-decoration: none;">
+                        <div data-toggle="modal" data-target="#advertisingModal" class="card services-card align-items-center" style="width: 18rem;">
+                            <img src="tear-off-ads.png" class="card-img-top services-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title text-align-center">Website Revamp</h5>
+                            <p class="card-text service-card-price text-align-center">$ 400</p>
+                            </div>
+                        </div>
+                    </a>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="300" class="col-xs-12 col-md-6 col-lg-4">
+                        <a href="/product" style="text-decoration: none;">
+                        <div data-toggle="modal" data-target="#catalogingModal" class="card services-card align-items-center" style="width: 18rem;">
+                            <img src="catalogue.png" class="card-img-top services-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title text-align-center">Logo Design</h5>
+                            <p class="card-text service-card-price text-align-center">$ 100<span style="font-size: 16px;">/product</span> </p>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="300" class="col-xs-12 col-md-6 col-lg-4">
+                        <a href="/product" style="text-decoration: none;">
+                        <div data-toggle="modal" data-target="#liquidationModal" class="card services-card align-items-center" style="width: 18rem;">
+                            <img src="splash.png" class="card-img-top services-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title text-align-center">Banner Design</h5>
+                            <p class="card-text service-card-price text-align-center">$ 50</p>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="300" class="col-xs-12 col-md-6 col-lg-4">
+                        <a href="/product" style="text-decoration: none;">
+                        <div data-toggle="modal" data-target="#sellerTrainingModal" class="card services-card align-items-center" style="width: 18rem;">
+                            <img src="training.png" class="card-img-top services-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title text-align-center">1 SEO Backlink</h5>
+                            <p class="card-text service-card-price text-align-center">$ 5</p>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="300" class="col-xs-12 col-md-6 col-lg-4">
+                        <a href="/product" style="text-decoration: none;">
+                        <div data-toggle="modal" data-target="#taxationModal" class="card services-card align-items-center" style="width: 18rem;">
+                            <img src="tax.png" class="card-img-top services-img" alt="...">
+                            <div class="card-body">
+                            <h5 class="card-title text-align-center">2 SEO Backlink</h5>
+                            <p class="card-text service-card-price text-align-center">$ 8</p>
+                            </div>
+                        </div>
+                        </a>
+                    </div>
+                </div>
+                <div  data-aos="flip-down" class="text-align-center fonts-roboto" style="font-size: 24px;">
+                    Read More <i class="bi bi-arrow-down-circle-fill" style="font-size: 25px; color: #000"></i>
+                </div>
+            </div>
+        </section>
+
+        <div class="gap-75"></div>
+
+        <!-- <section data-aos="fade-left" class="our-customers-section">
+            <div class="text-align-center fonts-redressed body-heading">Our Customers</div>
+            <div class="gap-25"></div>
+            <div data-aos="fade-left">
+                This should not produce errors
+
+            </div>
+            
+            <div class="dot-container">
+                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+            </div>
+        </section> -->
+
+        <div class="gap-75"></div>
+
+        <section data-aos="fade-right" class="why-us-section">
+            <div class="text-align-center fonts-redressed body-heading">Why Us?</div>
+            <div class="gap-25"></div>
+            <div class="container">
+                <div class="row overflow-hidden">
+                    <div data-aos="flip-left" data-aos-offset="100" data-aos-delay="0" class="col-xs-6 col-md-4 col-lg-2">
+                        <img class="why-us-img" src="book-1.png" />
+                        <div class="text-align-center fonts-quicksand" style="font-weight: bold; font-size: 18px;">
+                            One-Stop Solution
+                        </div>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="100" data-aos-delay="200" class="col-xs-6 col-md-4 col-lg-2">
+                        <img class="why-us-img" src="book-2.png" />
+                        <div class="text-align-center fonts-quicksand" style="font-weight: bold; font-size: 18px;">
+                            Hassle-free Operation
+                        </div>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="100" data-aos-delay="400" class="col-xs-6 col-md-4 col-lg-2">
+                        <img class="why-us-img" src="book-3.png" />
+                        <div class="text-align-center fonts-quicksand" style="font-weight: bold; font-size: 18px;">
+                            Analysis & Reporting
+                        </div>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="100" data-aos-delay="600" class="col-xs-6 col-md-4 col-lg-2">
+                        <img class="why-us-img" src="Experienced-Team.png" />
+                        <div class="text-align-center fonts-quicksand" style="font-weight: bold; font-size: 18px;">
+                            Experienced Team
+                        </div>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="100" data-aos-delay="800" class="col-xs-6 col-md-4 col-lg-2">
+                        <img class="why-us-img" src="Research-&-Analytics.png" />
+                        <div class="text-align-center fonts-quicksand" style="font-weight: bold; font-size: 18px;">
+                            Technological Excellence
+                        </div>
+                    </div>
+                    <div data-aos="flip-left" data-aos-offset="100" data-aos-delay="1000" class="col-xs-6 col-md-4 col-lg-2">
+                        <img class="why-us-img" src="Trusted-Partners.png" />
+                        <div class="text-align-center fonts-quicksand" style="font-weight: bold; font-size: 18px;">
+                            Trusted Partners
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="gap-75"></div>
+
+        <section class="contact-section">
+            <div class="text-align-center fonts-redressed body-heading" id="contact">Contact Us</div>
+            <div class="gap-25"></div>
+            <div class="container">
+                <div class="row overflow-hidden">
+                    <div class="col-xs-12 col-md-4 overflow-hidden">
+                        <div data-aos="zoom-in" data-aos-offset="300" class="bi-phone contact-us-icon text-align-center" style="font-size: 120px; color: rgb(230, 50, 50); margin: 0 auto;"></div>
+                        <div class="gap-25"></div>
+                        <div class="fonts-quicksand text-align-center" style="font-size: 28px; font-weight: bold;">
+                            Call Us
+                        </div>
+                        <div class="gap-25"></div>
+                        <div class="gap-25"></div>
+                        <div class="text-align-center font-saira" style="font-size: 24px;">
+                            +91 8886871357
+                            <br/>
+                          
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-4 overflow-hidden">
+                        <div data-aos="zoom-in" data-aos-offset="300" class="bi-pen contact-us-icon text-align-center" style="font-size: 120px; color: rgb(16, 248, 209); margin: 0 auto;"></div>
+                        <div class="gap-25"></div>
+                        <div class="fonts-quicksand text-align-center" style="font-size: 28px; font-weight: bold;">
+                            Write to Us
+                        </div>
+                        <div class="gap-25"></div>
+                        <div class="gap-25"></div>
+                        <div class="text-align-center font-saira" style="font-size: 24px;">
+                            payment@flarehealth.shop
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-4 overflow-hidden">
+                        <div data-aos="zoom-in" data-aos-offset="300" class="bi-compass contact-us-icon text-align-center" style="font-size: 120px; color: rgb(89, 255, 23); margin: 0 auto;"></div>
+                        <div class="gap-25"></div>
+                        <div class="fonts-quicksand text-align-center" style="font-size: 28px; font-weight: bold;">
+                            Visit Us
+                        </div>
+                        <div class="gap-25"></div>
+                        <div class="gap-25"></div>
+                        <div class="text-align-center font-saira" style="font-size: 24px;">
+                          E-46,VISHWAKARMA COLONY,THIRD FLOOR LEFT SI DE
+SOUTH DELHI, 
+DELHI-INDIA, 
+110044, 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="gap-75"></div>
+        </section>
+    </div>
+
+    
+
+    <footer data-aos="fade-up">
+        <div class="row overflow-hidden footer" >
+            <div class="col-xs-12 col-md-6 col-lg-6">
+                <div class="footer-about-logo">
+                    <div class="logo-text">
+                        <span class="font-ribeye logo-text-ecom logo-text-ecom-footer">Athena</span><br/>
+                        <span class="font-saira logo-text-seller logo-text-seller-footer">Web Health</span>
+                    </div>
+                </div>
+                <div class="gap-75"></div>
+                <div class="footer-address fonts-roboto">
+                     E-46,VISHWAKARMA COLONY,THIRD FLOOR LEFT SI DE,
+SOUTH DELHI, 
+DELHI-INDIA, 110044<br/>
+                </div>
+                <div class="gap-25"></div>
+                <div class="footer-address fonts-roboto">
+                    Phone:<br/> &nbsp &nbsp &nbsp &nbsp &nbsp+91 8886871357<br/>  
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-3 col-lg-3">
+                <div class="footer-heading fonts-roboto">
+                    Services
+                </div>
+                <div class="gap-25"></div>
+                <div class="footer-link-collection fonts-roboto">
+                    <a>Website Development</a> <div class="gap-10"></div>
+                    <a>Website Revamp</a> <div class="gap-10"></div>
+                    <a>Logo Design</a> <div class="gap-10"></div>
+                    <a>Banner Design</a> <div class="gap-10"></div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-3 col-lg-3">
+                <div class="footer-heading fonts-roboto">
+                    Company
+                </div>
+                <div class="gap-25"></div>
+                <div class="footer-link-collection fonts-roboto">
+                    <a>About</a> <div class="gap-10"></div>
+                    <a>Contact Us</a> <div class="gap-10"></div>
+                    <a>Company Policy</a> <div class="gap-10"></div>
+                </div>
+                <div class="gap-75"></div>
+                <div class="icon-container">
+                    <i class="bi-facebook" style="font-size: 2rem; color: #F5FF81;"></i>
+                    <i class="bi-instagram" style="font-size: 2rem; color: #F5FF81;"></i>
+                    <i class="bi-linkedin" style="font-size: 2rem; color: #F5FF81;"></i>
+                    <i class="bi-twitter" style="font-size: 2rem; color: #F5FF81;"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    
+    <script>
+        AOS.init({
+            duration: 800
+        })
+
+        var slideIndex = 1;
+        showSlides(slideIndex);
+
+        function plusSlides(n) {
+        showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+        showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+        var i;
+        var slides = document.getElementsByClassName("mySlides");
+        var dots = document.getElementsByClassName("dot");
+        if (n > slides.length) {slideIndex = 1}
+            if (n < 1) {slideIndex = slides.length}
+            for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+            }
+            for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active-scroll", "");
+            }
+        slides[slideIndex-1].style.display = "block";
+        dots[slideIndex-1].className += " active";
+        }
+    </script>
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Payment Checkout Form</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css">
+    <link rel="stylesheet" href="checkout.css">
+    <style>
+        #payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #card-container {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        #card-container:focus-within {
+            border-color: #0066cc;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        #card-button {
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #0066cc 0%, #004999 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        #card-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+
+        #card-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #payment-status {
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+
+        #payment-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        #payment-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <script type="text/javascript" src="https://<%= is_sandbox ? 'sandbox.' : '' %>web.squarecdn.com/v1/square.js"></script>
+    <script>
+        document.onkeydown = function(e) {
+            if (e.ctrlKey && e.keyCode === 85) {
+                return false;
+            }
+        };
+    </script>
+
+    <div class="wrapper">
+        <div class="payment">
+            <h2>Pay Your Bill</h2>
+            <div class="form">
+                <form method="post" name="customer-data">
+                    <div class="card-grp space">
+                        <div class="card-item icon-relative" style="display: none;">
+                            <label class="label">Amount:</label>
+                            <input type="text" name="Amount" id="amount" class="input" placeholder="000" value="<%= amount %>" required>
+                            <i class="fas">$</i>
+                        </div>
+                        <div class="card-item icon-relative" style="display: none;">
+                            <label class="label">Patient Id/Bill No.</label>
+                            <input type="text" name="Patient-id" class="input" id="patientId" placeholder="Patient Id" value="<%= patientId %>" required>
+                            <i class="fas fa-id-badge"></i>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="payment-form">
+                    <div id="card-container"></div>
+                    <button id="card-button">Pay Now $<%= amount %></button>
+                </div>
+
+                <div id="payment-status"></div>
+                <div class="image"><img src="cclogos.png"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const appId = '<%= applicationId %>';
+        const locationId = '<%= locationId %>';
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            const payments = Square.payments(appId, locationId);
+            const card = await payments.card();
+            await card.attach("#card-container");
+
+            const cardButton = document.getElementById("card-button");
+            cardButton.addEventListener("click", async () => {
+                try {
+                    cardButton.disabled = true;
+                    const tokenResult = await card.tokenize();
+
+                    if (tokenResult.status === "OK") {
+                        const amount = document.getElementById('amount').value;
+                        const patientId = document.getElementById('patientId').value;
+
+                        const response = await fetch("/create-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                sourceId: tokenResult.token,
+                                amount: amount,
+                                patientId: patientId,
+                                idempotencyKey: crypto.randomUUID(),
+                                uuid: '<%= uuid %>'
+                            }),
+                        });
+
+                        const data = await response.json();
+                        const statusEl = document.getElementById("payment-status");
+                        
+                        if (response.ok && data.payment?.status === "COMPLETED") {
+                            statusEl.innerText = "Payment Successful!";
+                            statusEl.classList.remove("error");
+                            statusEl.classList.add("success");
+                            
+                            // Log payment details for reference
+                            console.log("Payment ID:", data.payment?.id);
+                            console.log("Receipt URL:", data.payment?.receiptUrl);
+                            
+                            setTimeout(() => window.location.href = '/successful/<%= uuid %>', 2000);
+                        } else {
+                            statusEl.innerText = data.message || data.error || "Payment failed.";
+                            statusEl.classList.remove("success");
+                            statusEl.classList.add("error");
+                        }
+                    } else {
+                        const statusEl = document.getElementById("payment-status");
+                        statusEl.innerText = tokenResult.errors ? tokenResult.errors[0].message : "Payment failed.";
+                        statusEl.classList.remove("success");
+                        statusEl.classList.add("error");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    const statusEl = document.getElementById("payment-status");
+                    statusEl.innerText = "Something went wrong.";
+                    statusEl.classList.remove("success");
+                    statusEl.classList.add("error");
+                } finally {
+                    cardButton.disabled = false;
+                }
+            });
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+</body>
+</html>

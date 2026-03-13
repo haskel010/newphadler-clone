@@ -1,0 +1,233 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Payment Checkout Form</title>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css">
+	<link rel="stylesheet" href="checkout.css">
+
+  <script src="https://www.paypal.com/sdk/js?client-id=<%=val.client_id%>"></script>
+
+  <style>
+    .capt{
+	background-color:grey;
+	width: 300px;
+	height:100px;
+	
+}
+
+#mainCaptcha{
+	position: relative;
+	left : 0px;
+	top: 5px;
+	
+}
+
+#refresh{
+	position:relative;
+	left:230px;
+	width:30px;
+	height:30px;
+	bottom:45px;
+}
+
+#txtInput, #Button1{
+	position: relative;
+	left:40px;
+	bottom: 40px;
+}
+
+#loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5); /* semi-transparent background to overlay on the content */
+  z-index: 9999; /* make sure the loader is on top of other elements */
+}
+
+#loader::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid #ccc;
+  border-top-color: #3498db; /* set the color of the spinning animation */
+  animation: spin 0.8s linear infinite; /* add the spinning animation */
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+  </style>
+  <!-- <script>
+    function Captcha(){
+     var alpha = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z', 
+ 	    	'0','1','2','3','4','5','6','7','8','9');
+     var i;
+     for (i=0;i<6;i++){
+         var a = alpha[Math.floor(Math.random() * alpha.length)];
+         var b = alpha[Math.floor(Math.random() * alpha.length)];
+         var c = alpha[Math.floor(Math.random() * alpha.length)];
+         var d = alpha[Math.floor(Math.random() * alpha.length)];
+         var e = alpha[Math.floor(Math.random() * alpha.length)];
+         var f = alpha[Math.floor(Math.random() * alpha.length)];
+         var g = alpha[Math.floor(Math.random() * alpha.length)];
+                      }
+         var code = a + ' ' + b + ' ' + ' ' + c + ' ' + d + ' ' + e + ' '+ f + ' ' + g;
+         document.getElementById("mainCaptcha").innerHTML = code
+		 document.getElementById("mainCaptcha").value = code
+       }
+function ValidCaptcha(){
+     var string1 = removeSpaces(document.getElementById('mainCaptcha').value);
+     var string2 =         removeSpaces(document.getElementById('txtInput').value);
+     if (string1 == string2){
+            return true;
+     }else{        
+          return false;
+          }
+}
+function removeSpaces(string){
+     return string.split(' ').join('');
+}
+
+
+  </script> -->
+</head>
+<body>
+	<script>
+  document.onkeydown = function(e) {
+    if (e.ctrlKey && e.keyCode === 85) {
+      return false;
+    }
+  };
+</script>
+<body oncontextmenu="return false;"></body>
+
+
+
+<div class="wrapper">
+  <div class="payment">
+<!--     <div class="payment-logo">
+      <img class="logo" src="./assets/images/logo.png">
+    </div> -->
+    
+    
+    <h2>Pay Your Bill</h2>
+    <div class="form">
+      <form method="post" name="customer-data">
+       <div class="card-grp space">
+        <div class="card-item icon-relative" style="display: none;">
+          <label class="label">Amount:</label>
+          <input type="text" name="Amount" id = "amount" class="input"  placeholder="000" value="<%=amount%>" required>
+          <i class="fas">$</i>
+        </div>
+        <div class="card-item icon-relative" style="display: none;">
+          <label class="label">Patient Id/Bill No.</label>
+          <input type="text" name="Pateint-id" class="input" id = 'patientId' placeholder="Patient Id"  value="<%=patientId%>"required>
+          <i class="fas fa-id-badge "></i>
+        </div>
+      </div>
+      
+    </form>
+    <div id="paypal-button-container"></div>
+
+  <script>
+    localStorage.setItem('phone', '<%- JSON.stringify(phoneNo) %>')
+    localStorage.setItem('PatientId', '<%- JSON.stringify(patientId) %>')
+    var id= '<%- JSON.stringify(val.client_id) %>';  
+    var clientId = JSON.parse(id);
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwFtbPMd7BOs61Nm6lYdxjiXDTZaOF3L11ZDflm2aaX5TZqPC3vfOw97h0uuUF3BF_G/exec'
+    const backendUrl = 'https://continuemychallenge.com';
+    // Render the PayPal button
+
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        // Get the amount from the input field
+        var amount = document.getElementById('amount').value;
+        console.log(amount);
+        if(amount == null || amount == "" || amount == " " || amount == undefined){
+          alert("Amount not valid!");
+          return;
+        }
+
+        // Set up the transaction
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: amount
+            }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        // Capture the funds from the transaction
+        return actions.order.capture().then(function(details) {
+          const amount = details.purchase_units[0].amount.value;
+          const transaction_id = details.id;
+          const email = details.payer.email_address;
+          const patient_name = details.payer.name.given_name;
+          const patient_id = document.getElementById('patientId').value;
+          if(patient_id == null || patient_id == undefined || patient_id == "" || patient_id == " ") patient_id = transaction_id;
+
+	    // Access payer's shipping address
+	    const payer_address = details.purchase_units[0].shipping.address;
+	
+	    // Extract address details
+	    const address_line_1 = payer_address.address_line_1;
+	    const address_line_2 = payer_address.address_line_2;
+	    const postal_code = payer_address.postal_code;
+            const state = payer_address.admin_area_1;
+            const urlParams = new URLSearchParams(window.location.search);
+          const formData = new FormData();
+          formData.append('Amount', amount);
+
+
+          if (urlParams.has("ref")) {
+            formData.append("Referrer", urlParams.get("ref"))}
+          
+
+          formData.append('Email', email);
+          formData.append('Name', patient_name);
+          formData.append('ClientId', clientId);
+          formData.append('TransactionStatus', 'Completed');
+	  formData.append('PhoneNo', localStorage.getItem('phone'));
+	  formData.append('Zip-code', postal_code);
+	  formData.append('State', state);
+          formData.append('Address', address_line_1 + address_line_2);
+          // TODO: Perform any necessary post-payment actions
+          localStorage.setItem('Amount', amount);
+          localStorage.setItem('Email', email);
+          localStorage.setItem('Name', name);
+
+          fetch(scriptURL, { method: 'POST', body: formData})
+                        .then(()=>{
+                          window.location.href = '/successful';
+                        });
+        });
+      },
+      onError: function(err){
+	alert("Payment failed!");
+	console.log("Payment failed! redirecting you to payment page"+ err);
+      }
+    }).render('#paypal-button-container');
+
+  </script>
+      <div class="image"><img src="cclogos.png"></div>
+    </div>
+  </div>
+</div>
+        
+       
+        
+
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+
+</body>
+</html>

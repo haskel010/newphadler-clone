@@ -1,0 +1,55 @@
+input[type=text], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  input[type=submit] {
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  input[type=submit]:hover {
+    background-color: #45a049;
+  }
+  
+  div.form {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+  }
+
+
+  .navbar{
+    padding: 0;
+    height: 45px;
+  }
+  .navbar div{
+    margin: 0;
+    background-color: green;
+    height: 45px;
+  }
+
+.navbar a{
+    color: white;
+    margin-left: 10px;
+  }
+
+.card{
+  width: 900px;
+  margin: auto;
+}
+
+.activ{
+  background-color: rgb(240, 111, 111);
+}

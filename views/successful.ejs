@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/64b02a6f94cf5d49dc6363ff/1h582bjut';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+  </script>
+<!--End of Tawk.to Script-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-3OD8iGzxMZQQKp3geIDxHygAzoNpGi6Um4Kv3eIi3+Xk7nNJkD4NQIcH1rJ/LGRVX0TKVhrBsIpLbzKf0VlLjA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      background: #f2f2f2;
+      font-family: "Roboto", sans-serif;
+    }
+    
+    .card {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 22px;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      min-height: 440px;
+    }
+    
+    .card-heading {
+      font-size: 24px;
+      color: #00b894;
+      margin-bottom: 20px;
+    }
+    
+    .tick-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      color: #00b894;
+      font-size: 40px;
+      border: 2px solid #00b894;
+      border-radius: 50%;
+      height: 80px;
+      width: 80px;
+      margin: 0 auto 20px;
+    }
+    
+    .details {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    
+    .details p {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-right: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      background-color: transparent;
+      color: #fff;
+      border: none;
+    }
+    
+    .button-print {
+      background-color: #33b5e5;
+    }
+    
+    .button-download {
+      background-color: #00b894;
+    }
+    
+    .button-close {
+      background-color: #ff4444;
+    }
+  </style>
+  <script src="https://unpkg.com/easyinvoice/dist/easyinvoice.min.js"></script>
+</head>
+<body>
+  <div class="card">
+    <h2 class="card-heading">Payment Successful</h2>
+    <div class="tick-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><style>svg{fill:#00b894}</style><path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+    </div>
+    <div class="details">
+      <p>Payment Merchant:<span>Nexo Corp/Paypal</span></p>
+      <p>Payment Type:<span>Card</span></p>
+      <p>Mobile No:<span id="phone">+1(408) 580-5952</span></p>
+      <p>Email:<span id="email">xyz@example.com</span></p>
+      <p><strong>Amount Paid:</strong><span>$<strong id="amount"></strong></span></p>
+      <p><strong>Transaction ID:</strong><span>ATH23D534SA5</span></p>
+    </div>
+    <!-- <div class="buttons">
+      <p>Please wait for the call for the confirmation of the payment</p>
+    </div> -->
+    <div class="buttons">
+      <button id="printButton" class="button button-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <button id = "generate-invoice-button" class="button button-download"><i class="fas fa-download"></i> Download Invoice</button>
+      <button class="button button-close"  onclick="window.close()"><i class="fas fa-times"></i> Close</button>
+    </div>
+    <p style="text-align: left;"><strong>Important:</strong> Please note that the charge on your statement will appear as <strong>Nexo Corp Paypal</strong>. <br>
+
+      If you have any questions or concerns, feel free to contact our support team at <strong>payment@flarehealth.shop</strong> or <strong>+1(408) 580-5952</strong>.</strong></p>
+  </div>
+  <script>
+    document.getElementById("phone").innerText = localStorage.getItem("phone");
+    document.getElementById("email").innerText = localStorage.getItem("Email");
+    document.getElementById("amount").innerText =  localStorage.getItem("Amount");
+    document.getElementById("generate-invoice-button").addEventListener('click',()=>{downloadInvoice()});
+
+    function getFormattedDate() {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+        const year = today.getFullYear();
+        
+        const formattedDate = `${day}-${month}-${year}`;
+        return formattedDate;
+    }
+
+    function createInvoice() {
+      var data = getSampleData();
+        easyinvoice.createInvoice(data, function(result) {
+        document.getElementById('invoiceBase64').innerText = result.pdf;
+        /* console.log(result.pdf); */
+      });
+    }
+    
+    function downloadInvoice() {
+      console.log(localStorage.getItem("Email"));  
+      var data = getSampleData();
+        easyinvoice.createInvoice(data, function(result) {
+          easyinvoice.download('Athenahealth_Invoice.pdf', result.pdf);
+        //	you can download like this as well:
+        //	easyinvoice.download();
+        //	easyinvoice.download('myInvoice.pdf');
+      });
+    }
+    
+    function renderInvoice(){
+        var data = getSampleData();
+      document.getElementById("pdf").innerHTML = "loading...";
+        easyinvoice.createInvoice(data, function(result) {
+          easyinvoice.render('pdf', result.pdf);
+      });
+    }
+    
+    function getSampleData() {
+        return {
+            // "customize": {
+            //     "template": "SGVsbG8gd29ybGQh" // Must be base64 encoded html. This example contains 'Hello World!' in base64
+            // },
+            images: {
+                logo: 'https://i.ibb.co/9wBp6B7/Whats-App-Image-2024-07-02-at-19-07-47-92aea86b.jpg'
+            },
+            sender: {
+                company: 'Nexo Corp',
+                country: 'United States'
+                // "custom1": "custom value 1",
+                // "custom2": "custom value 2",
+                // "custom3": "custom value 3"
+            },
+            client: {
+                company: localStorage.getItem("Name"),
+                address: localStorage.getItem("Email"),
+                zip: localStorage.getItem("PatientId"),
+                // "custom1": "custom value 1",
+                // "custom2": "custom value 2",
+                // "custom3": "custom value 3"
+            },
+            information: {
+                date: getFormattedDate(),
+                number: "ABC2023D534SA5",
+                'due-date': "NA"
+            },
+            products: [
+                {
+                    quantity: 1,
+                    description: 'Health Bill',
+                    'tax-rate': 0,
+                    price: localStorage.getItem('Amount')
+                }
+            ],
+            'bottom-notice': "Please note that the charge on your statement will appear as Nexo Corp Paypal. If you have any questions or concerns, feel free to contact our support team at payment@flarehealth.shop or +1(408) 580-5952",
+            settings: {
+                currency: 'USD' // See documentation 'Locales and Currency' for more info. Leave empty for no currency.
+                // "locale": "nl-NL", // Defaults to en-US, used for number formatting (see docs)
+                // "margin-top": 25, // Default to 25
+                // "margin-right": 25, // Default to 25
+                // "margin-left": 25, // Default to 25
+                // "margin-bottom": 25, // Default to 25
+                // "format": "Letter", // Defaults to A4,
+                // "height": "1000px", // allowed units: mm, cm, in, px
+                     // "width": "500px", // allowed units: mm, cm, in, px
+                     // "orientation": "landscape", // portrait or landscape, defaults to portrait
+            },
+            // Used for translating the headers to your preferred language
+            // Defaults to English. Below example is translated to Dutch
+            "translate": {
+            //     "invoice": "FACTUUR",
+            //     "number": "Nummer",
+            //     "date": "Datum",
+            //     "due-date": "Verloopdatum",
+            //     "subtotal": "Subtotaal",
+            //     "products": "Producten",
+            //     "quantity": "Aantal",
+            //     "price": "Prijs",
+            //     "product-total": "Totaal",
+            //     "total": "Totaal"
+            //		 "vat": "btw"
+            },
+        };
+    }
+  
+    </script>
+  </body>
+  </html>
+  

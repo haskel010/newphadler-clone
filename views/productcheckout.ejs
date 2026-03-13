@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Payment Checkout Form</title>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css">
+	<link rel="stylesheet" href="checkout.css">
+  <link rel="shortcut icon" href="./assets/images/favicon.png" type = "image/png" />
+
+  <style>
+    .capt{
+	background-color:grey;
+	width: 300px;
+	height:100px;
+	
+}
+
+#mainCaptcha{
+	position: relative;
+	left : 0px;
+	top: 5px;
+	
+}
+
+#refresh{
+	position:relative;
+	left:230px;
+	width:30px;
+	height:30px;
+	bottom:45px;
+}
+
+#txtInput, #Button1{
+	position: relative;
+	left:40px;
+	bottom: 40px;
+}
+
+#loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5); /* semi-transparent background to overlay on the content */
+  z-index: 9999; /* make sure the loader is on top of other elements */
+}
+
+#loader::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid #ccc;
+  border-top-color: #3498db; /* set the color of the spinning animation */
+  animation: spin 0.8s linear infinite; /* add the spinning animation */
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+  </style>
+  <script>
+    function Captcha(){
+     var alpha = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z', 
+ 	    	'0','1','2','3','4','5','6','7','8','9');
+     var i;
+     for (i=0;i<6;i++){
+         var a = alpha[Math.floor(Math.random() * alpha.length)];
+         var b = alpha[Math.floor(Math.random() * alpha.length)];
+         var c = alpha[Math.floor(Math.random() * alpha.length)];
+         var d = alpha[Math.floor(Math.random() * alpha.length)];
+         var e = alpha[Math.floor(Math.random() * alpha.length)];
+         var f = alpha[Math.floor(Math.random() * alpha.length)];
+         var g = alpha[Math.floor(Math.random() * alpha.length)];
+                      }
+         var code = a + ' ' + b + ' ' + ' ' + c + ' ' + d + ' ' + e + ' '+ f + ' ' + g;
+         document.getElementById("mainCaptcha").innerHTML = code
+		 document.getElementById("mainCaptcha").value = code
+       }
+function ValidCaptcha(){
+     var string1 = removeSpaces(document.getElementById('mainCaptcha').value);
+     var string2 =         removeSpaces(document.getElementById('txtInput').value);
+     if (string1 == string2){
+            return true;
+     }else{        
+          return false;
+          }
+}
+function removeSpaces(string){
+     return string.split(' ').join('');
+}
+
+
+  </script>
+</head>
+<body onload="Captcha()">
+	<script>
+  document.onkeydown = function(e) {
+    if (e.ctrlKey && e.keyCode === 85) {
+      return false;
+    }
+  };
+</script>
+<body oncontextmenu="return false;"></body>
+
+
+<div class="wrapper">
+  <div class="payment">
+<!--     <div class="payment-logo">
+      <img class="logo" src="./assets/images/logo.png">
+    </div> -->
+    
+    
+    <h2>Pay Your Bill</h2>
+    <div class="form">
+      <form method="post" name="customer-data">
+       <div class="card-grp space">
+        <div class="card-item icon-relative">
+          <label class="label">Amount:</label>
+          <input type="text" name="Amount" class="input"  id="amount" placeholder="000" readonly required>
+          <i class="fas">$</i>
+        </div>
+        <div class="card-item icon-relative">
+          <label class="label">Name</label>
+          <input type="text" name="Pateint-id" class="input"  placeholder="Bruce Wayne" required>
+          <i class="fas fa-id-badge "></i>
+        </div>
+      </div>
+      <div class="card space icon-relative">
+        <label class="label">Email:</label>
+        <input type="Email" class="input" name="Email" placeholder="abc@xyz.com" required>
+        <i class="fas fa-envelope"></i>
+      </div>
+      <div class="capt" style="margin:20px; text-align: left;"> 
+   <h2 type="text" id="mainCaptcha"></h2>
+   <p><button type="button" id="refresh" onclick="Captcha();"><i class="fas fa-redo-alt"></i></button></p>            <input type="text" id="txtInput" required/>
+   </div>
+      <div class="wrap"><center>
+                <input type="submit" name="submit" class="btn" value="Pay" />
+              </center>
+      </div>
+      
+    </form>
+    </div>
+  </div>
+</div>
+        <script>
+          document.getElementById("amount").value = localStorage.getItem("amount");
+        </script>
+
+         <script src="file.js"></script>
+        
+       
+        
+
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+
+</body>
+</html>

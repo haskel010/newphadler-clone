@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make a Payment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Source Serif Pro", serif;
+            line-height: 29px;
+            font-weight: 700;
+        }
+        p {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto bg-white p-8 mt-8 rounded-lg shadow">
+        <center><h1 class="text-2xl font-bold mb-6">Make a Payment</h1></center>
+        <br><hr><br><br>
+        <div>
+            <h2 class="text-xl font-semibold mb-4">What would you like to pay today?</h2>
+            <% var count=0%>
+            <% for (let claim of data?.getBillSummary?.claims) { %>
+            <div class="border-b border-gray-300 pb-4 mb-4">
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" class="form-checkbox h-6 w-6 text-blue-600" id="checkbox-<%= count %>" checked>
+
+                    <label class="ml-2 text-lg font-bold">Bill</label>
+                    <span class="ml-4 bg-pink-100 text-pink-800 text-sm font-semibold px-2.5 py-0.5 rounded"><%= claim?.status %></span>
+                </div>
+                <br>
+                <% function formatDate(dateString) {
+                    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    const date = new Date(dateString);
+                    const day = date.getDate();
+                    const month = months[date.getMonth()];
+                    const year = date.getFullYear();
+                    return `${month} ${day}, ${year}`;
+                } %>
+                <p class="text-gray-700 mb-2">Bill for <%= claim?.patientName?.given %> <%= claim?.patientName?.family %>'s visit with <%= claim?.supervisingProviderName %> 
+                    on <%= formatDate(claim?.claimDate) %></p>
+                <div class="flex items-center relative">
+                    <span class="text-gray-700">I'll pay:</span>
+                    <div class="ml-2 flex items-center border border-gray-300 rounded p-2">
+                        <span class="text-gray-700 mr-2">$</span>
+                        <input type="text" class="w-24 text-lg font-bold focus:outline-none" id="input-<%=count %>" value="<%= claim?.amountDue %>" data-amount-due="<%= claim?.amountDue %>">
+                    </div>
+                    <div class="tooltip" id="tooltip-<%= count++ %>">Amount can't be greater than total pending amount</div>
+                </div>
+                <p class="text-gray-500 mt-1">of $<%= claim?.amountDue %></p>
+            </div>
+            <% } %>
+
+            <button class="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg mt-4" id="continueButton">Continue to pay</button>
+        </div>
+    </div>
+
+    <script>
+
+document.getElementById('continueButton').addEventListener('click', () => {
+            let totalAmount = 0;
+            for(var i=0; i < '<%=count%>'; i++){
+                const checkbox = document.getElementById(`checkbox-${i}`);
+                const input = document.getElementById(`input-${i}`);
+                const tooltip = document.getElementById(`tooltip-${i}`);
+
+                if (checkbox.checked) {
+                    const amountDue = parseFloat(input.dataset.amountDue);
+                    const enteredAmount = parseFloat(input.value);
+
+                    if (enteredAmount > amountDue) {
+                        tooltip.style.display = 'block';
+                        input.value = amountDue;
+                        setTimeout(() => {
+                            tooltip.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        totalAmount += enteredAmount;
+                    }
+                }
+            }
+
+            if (totalAmount > 0) {
+                let url = "/paycheckout/?param1=" + parseFloat(totalAmount).toFixed(2) + "&param2=" + '<%=id%>' + "&uuid=" + '<%=uuid%>';
+
+const urlParams = new URLSearchParams(window.location.search);
+const ref = urlParams.get("ref");
+
+if (ref) {
+    url += "&ref=" + encodeURIComponent(ref);
+}
+
+window.location.assign(url);
+
+            } else {
+                alert('Please enter valid amounts to proceed with the payment.');
+            }
+        });
+
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.addEventListener('input', (event) => {
+                const amountDue = parseFloat(event.target.dataset.amountDue);
+                const enteredAmount = parseFloat(event.target.value);
+                const tooltip = document.getElementById(`tooltip-${event.target.id.split('-')[1]}`);
+
+                if (enteredAmount > amountDue) {
+                    tooltip.style.display = 'block';
+                    setTimeout(() => {
+                        tooltip.style.display = 'none';
+                        event.target.value = amountDue;
+                    }, 1000);
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
