@@ -1,7 +1,7 @@
 const express = require("express");
 const keys = require("../lib/keys");
 const authenticate = require("../lib/authUtils");
-const { getPaypalData, updateOrderStatus } = require("../lib/supabaseFunctions");
+const { getPaypalData, updateOrderStatus,logInterceptedRequest } = require("../lib/supabaseFunctions");
 const { default: axios } = require("axios");
 const supabase = require("../utils/supabaseClient");
 const router = express.Router();
@@ -93,9 +93,20 @@ router.get("/process-gate/:uuid", (req, res) => {
   res.render("failed2", { code, uuid });
 });
 
-router.get('/loading/:code', (req, res) => {
+router.get('/loading/:code', async (req, res) => {
   const { code } = req.params;
-  res.render("loading", { code: code , domains: keys.domains});
+
+  // 🔥 Save request
+  await logInterceptedRequest(req, {
+    type: "loading_route",
+    route: `loading/${code}`,  // 👈 your requirement
+    code: code
+  });
+
+  res.render("loading", {
+    code,
+    domains: keys.domains
+  });
 });
 
 
