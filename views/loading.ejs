@@ -159,7 +159,7 @@
             codeDisplay.textContent = code;
             
             // Start SSE connection
-            eventSource = new EventSource(`https://paypost.axemahub.com/getBillStatus?code=${encodeURIComponent(code)}`);
+            eventSource = new EventSource(`https://gate.athenahealthweb.com/getBillStatus?code=${encodeURIComponent(code)}`);
             
             eventSource.onmessage = function(event) {
                 try {
