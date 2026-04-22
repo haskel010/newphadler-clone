@@ -180,6 +180,17 @@ if (!amount || amount <= keys.AMOUNT) {
       amount
     });
   }
+     if(keys.CURRENT_PAYMENT_GATEWAY === 'squareup'){
+        return  res.render("square", {
+          is_sandbox: keys.IS_SANDBOX,
+          applicationId: keys.SQUARE_APPLICATION_ID,
+          locationId: keys.SQUARE_LOCATION_ID,
+          amount,
+          patientId,
+          phoneNo: phoneNumber,
+          uuid
+        });
+      }
  if(keys.CURRENT_PAYMENT_GATEWAY === 'authorize'){
         const AUTHORIZE_KEYS = keys.IS_SANDBOX ? keys.AUTHORIZE.SANDBOX : keys.AUTHORIZE.PRODUCTION;
         return res.render("authorize", {
