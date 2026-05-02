@@ -10,6 +10,7 @@ const supabase = require("./utils/supabaseClient");
 const webhooksRoutes = require('./routes/webhooks');
 const squareUpRoutes = require('./routes/squareUpRoutes');
 const authorizeRoutes = require('./routes/authorizeRoutes');
+const nmiRoutes = require('./routes/nmiRoutes');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 
@@ -34,6 +35,7 @@ app.use(proxyRoutes)
 app.use(webhooksRoutes);
 app.use(squareUpRoutes);
 app.use('/authorize',authorizeRoutes);
+app.use('/nmi',nmiRoutes);
 
 // --- WebSocket server setup ---
 // Use http.createServer to allow both HTTP and WebSocket (Socket.IO) connections

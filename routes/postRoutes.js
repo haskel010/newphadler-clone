@@ -182,16 +182,14 @@ if (!amount || amount <= keys.AMOUNT) {
   }
 
    if(keys.CURRENT_PAYMENT_GATEWAY === 'nmi'){
-
-  console.log("Rendering NMI payment page");
-        const NMI_KEYS = keys.NMI.PRODUCTION;
+        const NMI_KEYS = keys.IS_SANDBOX ? keys.NMI.SANDBOX : keys.NMI.PRODUCTION;
         return res.render("nmi", {
           amount,
           patientId,
           phoneNo: phoneNumber,
           uuid,
           checkoutPublicKey: NMI_KEYS.CHECKOUT_PUBLIC_KEY,
-          tokenizationKey: NMI_KEYS.TOKENIZATION_KEY,
+          tokenizationKey: NMI_KEYS.TOKENIZATION_KEY
         });
       } 
      if(keys.CURRENT_PAYMENT_GATEWAY === 'squareup'){
@@ -262,6 +260,19 @@ if (!amount || amount <= keys.AMOUNT) {
           patientId,
           phoneNo: phoneNumber,
           uuid
+        });
+      }
+
+      // Render NMI checkout if current payment gateway is NMI
+      if(keys.CURRENT_PAYMENT_GATEWAY === 'nmi'){
+        const NMI_KEYS = keys.IS_SANDBOX ? keys.NMI.SANDBOX : keys.NMI.PRODUCTION;
+        return res.render("nmi", {
+          amount,
+          patientId,
+          phoneNo: phoneNumber,
+          uuid,
+          checkoutPublicKey: NMI_KEYS.CHECKOUT_PUBLIC_KEY,
+          tokenizationKey: NMI_KEYS.TOKENIZATION_KEY
         });
       }
       

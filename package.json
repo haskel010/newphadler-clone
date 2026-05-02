@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "@nmipayments/nmi-core": "^1.0.0",
     "@supabase/supabase-js": "^2.48.1",
     "authorizenet": "^1.0.10",
     "axios": "^0.27.2",
