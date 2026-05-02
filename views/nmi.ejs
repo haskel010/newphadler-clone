@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make a Payment</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css">
+    <link rel="stylesheet" href="checkout.css">
+    <style>
+        #payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #nmi-container {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        #nmi-container:focus-within {
+            border-color: #0066cc;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        #pay-button {
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #0066cc 0%, #004999 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        #pay-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+
+        #pay-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #payment-status {
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+
+        #payment-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        #payment-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .card-logo {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 32px;
+            width: 50px;
+            object-fit: contain;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-validation-status {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .card-validation-status.validating {
+            display: block;
+            color: #666;
+        }
+
+        .card-validation-status.valid {
+            display: block;
+            color: #155724;
+        }
+
+        .card-validation-status.invalid {
+            display: block;
+            color: #721c24;
+        }
+
+        #cardNumber.with-logo {
+            padding-right: 70px;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <script>
+        document.onkeydown = function(e) {
+            if (e.ctrlKey && e.keyCode === 85) {
+                return false;
+            }
+        };
+    </script>
+
+    <!-- Error Modal -->
+    <div id="errorModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 8px; padding: 24px; max-width: 400px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+            <h3 style="margin: 0 0 16px 0; color: #721c24; font-size: 18px;">Payment Error</h3>
+            <p id="errorMessage" style="margin: 0 0 24px 0; color: #555; font-size: 14px; line-height: 1.5;"></p>
+            <button id="errorModalOkBtn" style="width: 100%; padding: 10px; background: #0066cc; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">OK</button>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div class="payment">
+            <h2>Pay Your Bill</h2>
+            <div class="form">
+                <form method="post" name="customer-data">
+                    <div class="card-grp space">
+                        <div class="card-item icon-relative" style="display: none;">
+                            <label class="label">Amount:</label>
+                            <input type="text" name="Amount" id="amount" class="input" placeholder="000" value="<%= amount %>" required>
+                            <i class="fas">$</i>
+                        </div>
+                        <div class="card-item icon-relative" style="display: none;">
+                            <label class="label">Patient Id/Bill No.</label>
+                            <input type="text" name="Patient-id" class="input" id="patientId" placeholder="Patient Id" value="<%= patientId %>" required>
+                            <i class="fas fa-id-badge"></i>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="payment-form">
+                    <!-- NMI Card fields container -->
+                    <div id="nmi-container">
+                        <div class="card space">
+                            <div class="card icon-relative">
+                                <label class="label">Card Number</label>
+                                <input
+                                    type="text"
+                                    id="cardNumber"
+                                    class="input"
+                                    placeholder="0000 0000 0000 0000"
+                                    autocomplete="cc-number"
+                                >
+                                <i class="far fa-credit-card" id="cardIcon"></i>
+                                <img id="cardLogo" class="card-logo" style="display: none;" alt="Card Type">
+                                <div class="card-validation-status" id="cardValidationStatus"></div>
+                            </div>
+                        </div>
+
+                        <div class="card-grp space">
+                            <div class="card-item icon-relative">
+                                <label class="label">Expiry (MM/YY)</label>
+                                <input
+                                    type="text"
+                                    id="expirationDate"
+                                    class="input"
+                                    placeholder="MM/YY"
+                                    autocomplete="cc-exp"
+                                >
+                                <i class="far fa-calendar-alt"></i>
+                            </div>
+                            <div class="card-item icon-relative">
+                                <label class="label">CVV</label>
+                                <input
+                                    type="text"
+                                    id="cardCode"
+                                    class="input"
+                                    placeholder="123"
+                                    autocomplete="cc-csc"
+                                >
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+
+                        <!-- Billing Information Fields -->
+                        <div class="card-grp space" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                            <div class="card-item icon-relative">
+                                <label class="label">First Name</label>
+                                <input
+                                    type="text"
+                                    id="firstName"
+                                    class="input"
+                                    placeholder="John"
+                                    autocomplete="given-name"
+                                >
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="card-item icon-relative">
+                                <label class="label">Last Name</label>
+                                <input
+                                    type="text"
+                                    id="lastName"
+                                    class="input"
+                                    placeholder="Doe"
+                                    autocomplete="family-name"
+                                >
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+
+                        <div class="card space">
+                            <div class="card icon-relative">
+                                <label class="label">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    class="input"
+                                    placeholder="john@example.com"
+                                    autocomplete="email"
+                                >
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+
+                        <div class="card-grp space">
+                            <div class="card-item icon-relative">
+                                <label class="label">Phone</label>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    class="input"
+                                    placeholder="(123) 456-7890"
+                                    autocomplete="tel"
+                                >
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="card-item icon-relative">
+                                <label class="label">Address</label>
+                                <input
+                                    type="text"
+                                    id="address"
+                                    class="input"
+                                    placeholder="123 Main St"
+                                    autocomplete="street-address"
+                                >
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                        </div>
+
+                        <div class="card-grp space">
+                            <div class="card-item icon-relative">
+                                <label class="label">City</label>
+                                <input
+                                    type="text"
+                                    id="city"
+                                    class="input"
+                                    placeholder="New York"
+                                    autocomplete="address-level2"
+                                >
+                                <i class="fas fa-city"></i>
+                            </div>
+                            <div class="card-item icon-relative">
+                                <label class="label">State</label>
+                                <input
+                                    type="text"
+                                    id="state"
+                                    class="input"
+                                    placeholder="NY"
+                                    autocomplete="address-level1"
+                                    maxlength="2"
+                                >
+                                <i class="fas fa-flag"></i>
+                            </div>
+                        </div>
+
+                        <div class="card-grp space">
+                            <div class="card-item icon-relative">
+                                <label class="label">ZIP Code</label>
+                                <input
+                                    type="text"
+                                    id="zip"
+                                    class="input"
+                                    placeholder="10001"
+                                    autocomplete="postal-code"
+                                >
+                                <i class="fas fa-mailbox"></i>
+                            </div>
+                            <div class="card-item icon-relative">
+                                <label class="label">Country</label>
+                                <input
+                                    type="text"
+                                    id="country"
+                                    class="input"
+                                    placeholder="US"
+                                    autocomplete="country-name"
+                                    value="US"
+                                >
+                                <i class="fas fa-globe"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="pay-button">Pay Now $<%= amount %></button>
+                </div>
+
+                <div id="payment-status"></div>
+                <div class="image"><img src="cclogos.png"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showErrorModal(message) {
+            document.getElementById("errorMessage").innerText = message;
+            document.getElementById("errorModal").style.display = "flex";
+        }
+
+        function closeErrorModal() {
+            document.getElementById("errorModal").style.display = "none";
+            clearFormFields();
+        }
+
+        function clearFormFields() {
+            document.getElementById("cardNumber").value = "";
+            document.getElementById("expirationDate").value = "";
+            document.getElementById("cardCode").value = "";
+            const statusEl = document.getElementById("payment-status");
+            statusEl.style.display = 'none';
+            statusEl.classList.remove("success", "error");
+            statusEl.innerText = "";
+        }
+
+        document.getElementById("errorModalOkBtn").addEventListener("click", closeErrorModal);
+    </script>
+
+    <script>
+        const amount     = '<%= amount %>';
+        const patientId  = '<%= patientId %>';
+        const uuid       = '<%= uuid %>';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const payButton = document.getElementById("pay-button");
+            const statusEl  = document.getElementById("payment-status");
+
+            // Helper: Luhn algorithm
+            function luhnCheck(num) {
+                const digits = num.replace(/\D/g, '');
+                let sum = 0, shouldDouble = false;
+                for (let i = digits.length - 1; i >= 0; i--) {
+                    let d = parseInt(digits[i]);
+                    if (shouldDouble) { d *= 2; if (d > 9) d -= 9; }
+                    sum += d;
+                    shouldDouble = !shouldDouble;
+                }
+                return sum % 10 === 0;
+            }
+
+            // Helper: show inline error
+            function showFieldError(msg) {
+                statusEl.innerText = msg;
+                statusEl.classList.add("error");
+                statusEl.style.display = 'block';
+                payButton.disabled = false;
+            }
+
+            payButton.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                statusEl.style.display = 'none';
+                statusEl.classList.remove("success", "error");
+
+                try {
+                    payButton.disabled = true;
+
+                    // ── Collect all values ───────────────────────────────────
+                    const cardNumber     = document.getElementById("cardNumber").value.replace(/\s/g, '');
+                    const expirationDate = document.getElementById("expirationDate").value.trim();
+                    const cardCode       = document.getElementById("cardCode").value.trim();
+                    const firstName      = document.getElementById("firstName").value.trim();
+                    const lastName       = document.getElementById("lastName").value.trim();
+                    const email          = document.getElementById("email").value.trim();
+                    const phone          = document.getElementById("phone").value.trim();
+                    const address        = document.getElementById("address").value.trim();
+                    const city           = document.getElementById("city").value.trim();
+                    const state          = document.getElementById("state").value.trim();
+                    const zip            = document.getElementById("zip").value.trim();
+                    const country        = document.getElementById("country").value.trim() || "US";
+
+                    // ── Card number ──────────────────────────────────────────
+                    if (!cardNumber) { showFieldError("Card number is required."); return; }
+                    if (!/^\d{13,19}$/.test(cardNumber)) { showFieldError("Card number must be 13–19 digits."); return; }
+                    if (!luhnCheck(cardNumber)) { showFieldError("Card number is invalid. Please check and try again."); return; }
+
+                    // ── Detect Amex for CVV length ───────────────────────────
+                    const isAmex = /^3[47]/.test(cardNumber);
+
+                    // ── Expiry ───────────────────────────────────────────────
+                    if (!expirationDate) { showFieldError("Expiry date is required."); return; }
+                    const expiryMatch = expirationDate.match(/^(\d{2})\/(\d{2})$/);
+                    if (!expiryMatch) { showFieldError("Invalid expiry date format. Use MM/YY."); return; }
+                    const [, month, year] = expiryMatch;
+                    const monthNum = parseInt(month, 10);
+                    if (monthNum < 1 || monthNum > 12) { showFieldError("Expiry month must be 01–12."); return; }
+                    const now = new Date();
+                    const expFull = new Date(2000 + parseInt(year, 10), monthNum - 1, 1);
+                    expFull.setMonth(expFull.getMonth() + 1); // end of expiry month
+                    if (expFull <= now) { showFieldError("Card has expired. Please use a valid card."); return; }
+
+                    // ── CVV ──────────────────────────────────────────────────
+                    if (!cardCode) { showFieldError("CVV is required."); return; }
+                    const cvvLength = isAmex ? 4 : 3;
+                    if (!new RegExp(`^\\d{${cvvLength}}$`).test(cardCode)) {
+                        showFieldError(`CVV must be ${cvvLength} digits.`);
+                        return;
+                    }
+
+                    // ── Name ─────────────────────────────────────────────────
+                    if (!firstName) { showFieldError("First name is required."); return; }
+                    if (!lastName)  { showFieldError("Last name is required."); return; }
+
+                    // ── Email ────────────────────────────────────────────────
+                    if (!email) { showFieldError("Email address is required."); return; }
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFieldError("Please enter a valid email address."); return; }
+
+                    // ── Phone ────────────────────────────────────────────────
+                    if (!phone) { showFieldError("Phone number is required."); return; }
+                    const phoneDigits = phone.replace(/\D/g, '');
+                    if (phoneDigits.length !== 10) { showFieldError("Phone number must be 10 digits."); return; }
+
+                    // ── Address ──────────────────────────────────────────────
+                    if (!address) { showFieldError("Street address is required."); return; }
+                    if (!city)    { showFieldError("City is required."); return; }
+                    if (!state || state.length !== 2) { showFieldError("State must be a 2-letter code (e.g. NY)."); return; }
+                    if (!zip || !/^\d{5}$/.test(zip)) { showFieldError("ZIP code must be 5 digits."); return; }
+
+                    // ── Format expiry for NMI (MMYY) ─────────────────────────
+                    const expiryDate = month + year;
+
+                    // Send payment data to NMI route
+                    fetch("/nmi/create-payment", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            cardNumber: cardNumber.replace(/\s/g, ''),
+                            expiryDate: expiryDate,
+                            cvv: cardCode,
+                            amount: amount,
+                            firstName: firstName,
+                            lastName: lastName,
+                            email: email,
+                            phone: phone,
+                            address: address,
+                            city: city,
+                            state: state,
+                            zip: zip,
+                            country: country,
+                            uuid: uuid,
+                            description: `Payment for Patient ID: ${patientId}`
+                        }),
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            statusEl.innerText = "Payment Successful!";
+                            statusEl.classList.remove("error");
+                            statusEl.classList.add("success");
+                            statusEl.style.display = 'block';
+                            console.log("Transaction ID:", data.transaction.transactionId);
+                            setTimeout(() => window.location.href = `/successful/<%= uuid %>`, 2000);
+                        } else {
+                            const errorMsg = data.details || data.message || "Payment failed.";
+                            statusEl.innerText = errorMsg;
+                            statusEl.classList.remove("success");
+                            statusEl.classList.add("error");
+                            statusEl.style.display = 'block';
+                            showErrorModal(errorMsg);
+                            payButton.disabled = false;
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        statusEl.innerText = "Network error. Please try again.";
+                        statusEl.classList.remove("success");
+                        statusEl.classList.add("error");
+                        statusEl.style.display = 'block';
+                        showErrorModal("Network error. Please try again.");
+                        payButton.disabled = false;
+                    });
+
+                } catch (err) {
+                    console.error(err);
+                    statusEl.innerText = "Something went wrong.";
+                    statusEl.classList.remove("success");
+                    statusEl.classList.add("error");
+                    statusEl.style.display = 'block';
+                    payButton.disabled = false;
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById("cardNumber").addEventListener("input", clearPaymentError);
+        document.getElementById("expirationDate").addEventListener("input", clearPaymentError);
+        document.getElementById("cardCode").addEventListener("input", clearPaymentError);
+
+        function clearPaymentError() {
+            const statusEl = document.getElementById("payment-status");
+            statusEl.style.display = 'none';
+            statusEl.classList.remove("success", "error");
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script>
+        // Card type detection and validation
+        const cardTypePatterns = {
+            visa: /^4[0-9]{12}(?:[0-9]{3})?$/,
+            mastercard: /^5[1-5][0-9]{14}$/,
+            amex: /^3[47][0-9]{13}$/,
+            discover: /^6(?:011|5[0-9]{2})[0-9]{12}$/,
+            diners: /^3(?:0[0-5]|[68][0-9])[0-9]{11}$/,
+            jcb: /^(?:2131|1800|35\d{3})\d{11}$/
+        };
+
+        const cardLogos = {
+            visa: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"%3E%3Crect width="48" height="32" rx="4" fill="%231A1F71"/%3E%3Ctext x="24" y="20" text-anchor="middle" fill="white" font-size="12" font-weight="bold"%3EVISA%3C/text%3E%3C/svg%3E',
+            mastercard: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"%3E%3Crect width="48" height="32" rx="4" fill="%23EB001B"/%3E%3Ccircle cx="16" cy="16" r="8" fill="%23FF5F00"/%3E%3Ccircle cx="32" cy="16" r="8" fill="%23FFB81C"/%3E%3C/svg%3E',
+            amex: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"%3E%3Crect width="48" height="32" rx="4" fill="%23006FCF"/%3E%3Ctext x="24" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold"%3EAMEX%3C/text%3E%3C/svg%3E',
+            discover: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"%3E%3Crect width="48" height="32" rx="4" fill="%23FF6000"/%3E%3Ctext x="24" y="20" text-anchor="middle" fill="white" font-size="9" font-weight="bold"%3EDISCOVER%3C/text%3E%3C/svg%3E',
+            diners: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"%3E%3Crect width="48" height="32" rx="4" fill="%23000000"/%3E%3Ctext x="24" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold"%3EDINERS%3C/text%3E%3C/svg%3E',
+            jcb: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32"%3E%3Crect width="48" height="32" rx="4" fill="%231434CB"/%3E%3Ctext x="24" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold"%3EJCB%3C/text%3E%3C/svg%3E'
+        };
+
+        // Debounce utility
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Detect card type
+        function detectCardType(cardNumber) {
+            const cleaned = cardNumber.replace(/\s/g, '');
+            for (const [type, pattern] of Object.entries(cardTypePatterns)) {
+                if (pattern.test(cleaned)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+
+        // Validate card with NMI
+        const validateCardWithDebounce = debounce(async function() {
+            
+            const cardNumberInput = document.getElementById("cardNumber");
+            const cardNumber = cardNumberInput.value.trim();
+            const expirationDate = document.getElementById("expirationDate").value.trim();
+            const cardCode = document.getElementById("cardCode").value.trim();
+            const cardLogo = document.getElementById("cardLogo");
+            const cardIcon = document.getElementById("cardIcon");
+            const validationStatus = document.getElementById("cardValidationStatus");
+
+            // Clear previous status
+            validationStatus.textContent = '';
+            validationStatus.className = 'card-validation-status';
+
+            // Need at least card number and CVV for validation
+            if (cardNumber.length < 13 || cardCode.length < 3) {
+                cardLogo.style.display = 'none';
+                cardIcon.style.display = 'inline-block';
+                cardNumberInput.classList.remove('with-logo');
+                return;
+            }
+            console.log('Validating card number:', cardNumber);
+
+            // Detect card type
+            const cardType = detectCardType(cardNumber);
+
+            if (!cardType) {
+                cardLogo.style.display = 'none';
+                cardIcon.style.display = 'inline-block';
+                cardNumberInput.classList.remove('with-logo');
+                validationStatus.textContent = '❌';
+                validationStatus.classList.add('invalid');
+                return;
+            }
+            console.log('Detected card type:', cardType);
+
+            // Show validating status
+            validationStatus.textContent = '⟳';
+            validationStatus.classList.add('validating');
+            cardIcon.style.display = 'none';
+            cardLogo.style.display = 'block';
+            cardLogo.src = cardLogos[cardType];
+            cardNumberInput.classList.add('with-logo');
+
+            try {
+                // Parse expiry if available
+                let expiryDate = '';
+                if (expirationDate) {
+                    const [month, year] = expirationDate.split("/").map(s => s.trim());
+                    expiryDate = month + year;
+                }
+
+                // Call NMI validate-card endpoint
+                const response = await fetch("/nmi/validate-card", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        cardNumber: cardNumber.replace(/\s/g, ''),
+                        expiryDate: expiryDate,
+                        cvv: cardCode
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.valid) {
+                    validationStatus.textContent = '✓';
+                    validationStatus.classList.remove('validating');
+                    validationStatus.classList.add('valid');
+                } else {
+                    validationStatus.textContent = '❌';
+                    validationStatus.classList.remove('validating');
+                    validationStatus.classList.add('invalid');
+                }
+            } catch (err) {
+                console.error('Card validation error:', err);
+                validationStatus.textContent = '⚠';
+                validationStatus.classList.remove('validating');
+            }
+        }, 800); // 800ms debounce
+
+        // Input formatting and masking
+        $(function() {
+            $('#cardNumber').mask('0000 0000 0000 0000');
+            $('#expirationDate').mask('00/00');
+            $('#cardCode').mask('0000');
+            $('#phone').mask('(000) 000-0000');
+            $('#zip').mask('00000');
+        });
+
+        // Add card validation on input
+        document.getElementById("cardNumber").addEventListener("input", validateCardWithDebounce);
+        document.getElementById("expirationDate").addEventListener("input", validateCardWithDebounce);
+        document.getElementById("cardCode").addEventListener("input", validateCardWithDebounce);
+
+        // Clear status error on any billing field change
+        ['firstName','lastName','email','phone','address','city','state','zip','country'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('input', clearPaymentError);
+        });
+
+        // State: uppercase only, max 2 chars
+        document.getElementById('state').addEventListener('input', function() {
+            this.value = this.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2);
+        });
+
+        // Email: live format hint
+        document.getElementById('email').addEventListener('blur', function() {
+            const v = this.value.trim();
+            if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+                this.style.borderColor = '#dc3545';
+                this.title = 'Invalid email address';
+            } else {
+                this.style.borderColor = '';
+                this.title = '';
+            }
+        });
+        document.getElementById('email').addEventListener('input', function() {
+            this.style.borderColor = '';
+            this.title = '';
+        });
+    </script>
+</body>
+</html>
