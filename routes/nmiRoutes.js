@@ -3,7 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const keys = require('../lib/keys');
-const { updateOrderStatus } = require('../lib/supabaseFunctions');
+const { updateOrderStatus, insertPaymentLog } = require('../lib/supabaseFunctions');
 const router = express.Router();
 
 // NMI Configuration
@@ -52,6 +52,16 @@ router.post('/create-payment', async (req, res) => {
 
     // Validate required fields
     if (!cardNumber || !expiryDate || !cvv || !amount) {
+      await insertPaymentLog({
+        gatewayName: 'nmi',
+        endpoint: '/nmi/create-payment',
+        amount,
+        response: {
+          status: 'error',
+          reason: 'missing_required_payment_fields',
+        },
+      });
+
       return res.status(400).json({
         success: false,
         message: 'Missing required payment fields',
@@ -99,6 +109,19 @@ router.post('/create-payment', async (req, res) => {
     if (responseData.response === '1') {
       // Success
       updateOrderStatus(uuid, 'completed/payment');
+      await insertPaymentLog({
+        gatewayName: 'nmi',
+        endpoint: '/nmi/create-payment',
+        amount,
+        response: {
+          status: 'success',
+          transactionId: responseData.transactionid,
+          authCode: responseData.authcode,
+          orderid: responseData.orderid,
+          response: responseData.response,
+          responsetext: responseData.responsetext,
+        },
+      });
       
 
       res.json({
@@ -115,6 +138,17 @@ router.post('/create-payment', async (req, res) => {
       });
     } else if (responseData.response === '2') {
       // Declined
+      await insertPaymentLog({
+        gatewayName: 'nmi',
+        endpoint: '/nmi/create-payment',
+        amount,
+        response: {
+          status: 'error',
+          response: responseData.response,
+          responsetext: responseData.responsetext,
+        },
+      });
+
       res.status(400).json({
         success: false,
         message: 'Payment declined',
@@ -122,6 +156,17 @@ router.post('/create-payment', async (req, res) => {
       });
     } else {
       // Error
+      await insertPaymentLog({
+        gatewayName: 'nmi',
+        endpoint: '/nmi/create-payment',
+        amount,
+        response: {
+          status: 'error',
+          response: responseData.response,
+          responsetext: responseData.responsetext || 'Unknown error',
+        },
+      });
+
       res.status(400).json({
         success: false,
         message: 'Payment processing error',
@@ -130,6 +175,16 @@ router.post('/create-payment', async (req, res) => {
     }
   } catch (err) {
     console.error('[NMI] Error:', err.message);
+    await insertPaymentLog({
+      gatewayName: 'nmi',
+      endpoint: '/nmi/create-payment',
+      amount: req.body?.amount,
+      response: {
+        status: 'error',
+        message: err.message,
+      },
+    });
+
     res.status(500).json({
       success: false,
       message: 'Payment processing failed',
@@ -149,6 +204,16 @@ router.post('/create-token-payment', async (req, res) => {
     const { tokenId, amount, uuid, description = 'Payment via NMI' } = req.body;
 
     if (!tokenId || !amount) {
+      await insertPaymentLog({
+        gatewayName: 'nmi',
+        endpoint: '/nmi/create-token-payment',
+        amount,
+        response: {
+          status: 'error',
+          reason: 'missing_required_fields',
+        },
+      });
+
       return res.status(400).json({
         success: false,
         message: 'Missing required fields: tokenId, amount',
@@ -173,6 +238,19 @@ router.post('/create-token-payment', async (req, res) => {
 
     if (responseData.response === '1') {
       updateOrderStatus(uuid, 'completed/payment');
+      await insertPaymentLog({
+        gatewayName: 'nmi',
+        endpoint: '/nmi/create-token-payment',
+        amount,
+        response: {
+          status: 'success',
+          transactionId: responseData.transactionid,
+          authCode: responseData.authcode,
+          orderid: responseData.orderid,
+          response: responseData.response,
+          responsetext: responseData.responsetext,
+        },
+      });
 
       res.json({
         success: true,
@@ -185,6 +263,17 @@ router.post('/create-token-payment', async (req, res) => {
         },
       });
     } else {
+      await insertPaymentLog({
+        gatewayName: 'nmi',
+        endpoint: '/nmi/create-token-payment',
+        amount,
+        response: {
+          status: 'error',
+          response: responseData.response,
+          responsetext: responseData.responsetext,
+        },
+      });
+
       res.status(400).json({
         success: false,
         message: 'Payment failed',
@@ -193,6 +282,16 @@ router.post('/create-token-payment', async (req, res) => {
     }
   } catch (err) {
     console.error('[NMI] Token Payment Error:', err.message);
+    await insertPaymentLog({
+      gatewayName: 'nmi',
+      endpoint: '/nmi/create-token-payment',
+      amount: req.body?.amount,
+      response: {
+        status: 'error',
+        message: err.message,
+      },
+    });
+
     res.status(500).json({
       success: false,
       message: 'Payment processing failed',
